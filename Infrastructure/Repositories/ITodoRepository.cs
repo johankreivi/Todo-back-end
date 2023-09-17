@@ -2,8 +2,9 @@
 
 namespace Infrastructure.Repositories
 {
-    public interface ITodoRepository
+    public interface ITodoRepository : IRepository<Todo>
     {
-
+        // Add any specific methods only relevant to Todo
     }
+
 }

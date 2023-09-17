@@ -8,13 +8,21 @@ namespace Api.Controllers
     [ApiController]
     public class TodosController : ControllerBase
     {
-        private readonly ITodoRepository _todoRepository;
 
-        public TodosController(ITodoRepository todoRepository)
+        // Create, interface refrence, constructor and a async Post Method to Create Todo using generic repository pattern and IRepository interface
+        private readonly IRepository<Todo> _repository;
+
+        public TodosController(IRepository<Todo> repository)
         {
-            _todoRepository = todoRepository;
+            _repository = repository;
         }
 
-
+        // Create a async Post Method to Create Todo using generic repository pattern and IRepository interface
+        [HttpPost]
+        public async Task<IActionResult> Create(Todo todo)
+        {
+            await _repository.AddAsync(todo);
+            return Ok(todo);
+        }
     }
 }
