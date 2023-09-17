@@ -1,12 +1,13 @@
-﻿namespace Infrastructure.Repositories;
+﻿using Entity;
+using System;
 
-public class TodoRepository : ITodoRepository
+namespace Infrastructure.Repositories;
+
+public class TodoRepository : Repository<Todo>, ITodoRepository
 {
-    private readonly TodoContext _context;
-
-    public TodoRepository(TodoContext context)
+    public TodoRepository(TodoContext context) : base(context)
     {
-        _context = context;
     }
 
+    // Add any specific methods only relevant to Todo
 }

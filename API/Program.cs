@@ -29,6 +29,8 @@ builder.Services.AddDbContext<TodoContext>(opt =>
     opt.UseSqlite(connectionString);
 });
 
+// Registering Generic Repository
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
 
