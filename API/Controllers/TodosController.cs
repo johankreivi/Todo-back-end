@@ -31,5 +31,20 @@ namespace Api.Controllers
             return Ok(todoDto);
         }
 
+        // Create a async Get Method to Get All Todos using generic repository pattern and IRepository interface, use automapper profile to map Todo to TodoDto
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(int pageNumber, int pageSize)
+        {
+            var todos = await _repository.GetAllAsync(pageNumber, pageSize);
+            var todosDto = _mapper.Map<IEnumerable<TodoDto>>(todos);
+
+            if (todosDto.Count() == 0)
+            {
+                return NoContent();
+            }
+
+            return Ok(todosDto);
+        }
+
     }
 }
