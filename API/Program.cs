@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Api.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,8 @@ builder.Services.AddDbContext<TodoContext>(opt =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
-
+//Register automapper configuration class in separate file in Helpers folder
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 
