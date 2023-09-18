@@ -28,9 +28,10 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<T>> GetAllAsync()
+        //create a async Get Method to Get All Todos using generic repository pattern and IRepository interface. implement pagination
+        public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize) 
         {
-            throw new NotImplementedException();
+            return await _context.Set<T>().Select(x => x).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public Task<T> GetByIdAsync(int id)
