@@ -33,6 +33,12 @@ namespace Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
+        //create a async Get Method to Get Todo count using generic repository pattern and IRepository interface
+        public async Task<int> GetCountAsync()
+        {
+            return await _context.Set<T>().CountAsync();
+        }
+
         public Task<T> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
