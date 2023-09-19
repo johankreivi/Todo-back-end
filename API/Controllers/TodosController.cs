@@ -46,5 +46,15 @@ namespace Api.Controllers
             return Ok(todosDto);
         }
 
+        // Create a async Get Method to Get Todo count using generic repository pattern and IRepository interface
+        [HttpGet("count")]
+        public async Task<ActionResult> GetTodoCount()
+        {
+            var count = await _repository.GetCountAsync();
+
+            return Ok(count);
+        }
+
+
     }
 }

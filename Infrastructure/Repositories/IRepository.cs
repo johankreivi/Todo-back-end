@@ -13,5 +13,6 @@ namespace Infrastructure.Repositories
         Task AddAsync(T entity);
         void Update(T entity);
         Task DeleteAsync(int id);
+        Task<int> GetCountAsync();
     }
 }
