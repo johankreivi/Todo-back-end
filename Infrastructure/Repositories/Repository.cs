@@ -34,7 +34,6 @@ namespace Infrastructure.Repositories
             return await _context.Set<T>().Select(x => x).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        //create a async Get Method to Get Todo count using generic repository pattern and IRepository interface
         public async Task<int> GetCountAsync()
         {
             return await _context.Set<T>().CountAsync();
@@ -43,6 +42,12 @@ namespace Infrastructure.Repositories
         public Task<T> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task UpdateAsync(T entity)
+        {
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
         }
 
         public void Update(T entity)
