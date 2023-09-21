@@ -31,6 +31,15 @@ namespace Api.Controllers
             return Ok(todoDto);
         }
 
+        [HttpPut]
+        public async Task<ActionResult> Update(Todo todo)
+        {
+            await _repository.UpdateAsync(todo);
+            var todoDto = _mapper.Map<TodoDto>(todo);
+
+            return Ok(todoDto);
+        }   
+
         // Create a async Get Method to Get All Todos using generic repository pattern and IRepository interface, use automapper profile to map Todo to TodoDto
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(int pageNumber, int pageSize)
