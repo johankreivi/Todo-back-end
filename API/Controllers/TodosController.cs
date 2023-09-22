@@ -31,6 +31,15 @@ namespace Api.Controllers
             return Ok(todoDto);
         }
 
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            await _repository.DeleteAsync(id);
+
+            return Ok();
+        }
+
         [HttpPut]
         public async Task<ActionResult> Update(Todo todo)
         {

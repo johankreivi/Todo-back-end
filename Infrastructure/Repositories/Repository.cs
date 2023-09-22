@@ -23,12 +23,13 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var entity = await _context.Set<T>().FindAsync(id);
+            _context.Set<T>().Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
-        //create a async Get Method to Get All Todos using generic repository pattern and IRepository interface. implement pagination
         public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize) 
         {
             return await _context.Set<T>().Select(x => x).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
