@@ -109,9 +109,16 @@ namespace Api.Controllers
         [HttpPut("deadline")]
         public async Task<ActionResult> ChangeDeadline([FromBody] ChangeDeadlineRequest request)
         {
-            await _repository.UpdateDeadline(request.id, request.deadline);
-
-            return Ok();
+            try
+            {
+                await _repository.UpdateDeadline(request.id, request.deadline);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"An unexpected error occurred while updating the deadline for todo with ID: {request.id}.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while updating the deadline. Please try again later.");
+            }
         }
     }
 
