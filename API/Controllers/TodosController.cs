@@ -26,10 +26,18 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateTodo(Todo todo)
         {
-            await _repository.AddAsync(todo);
-            var todoDto = _mapper.Map<TodoDto>(todo);
+            try
+            {
+                await _repository.AddAsync(todo);
+                var todoDto = _mapper.Map<TodoDto>(todo);
 
-            return Ok(todoDto);
+                return Ok(todoDto);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An unexpected error occurred while creating a todo.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while creating the todo. Please try again later.");
+            }
         }
 
         [HttpDelete]
@@ -65,7 +73,6 @@ namespace Api.Controllers
             return Ok(todosDto);
         }
 
-        // Create a async Get Method to Get Todo count using generic repository pattern and IRepository interface
         [HttpGet("count")]
         public async Task<ActionResult> GetTodoCount()
         {

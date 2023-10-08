@@ -115,5 +115,44 @@ namespace Api.Test
             Assert.AreEqual("An error occurred while fetching the todo count. Please try again later.", objectResult.Value);
         }
 
+        [TestMethod]
+        public async Task CreateTodo_ReturnsTodoDto_WhenSuccessful()
+        {
+            // Arrange
+            var inputTodo = new Todo { Id = 1, Title = "TestTodo" };
+            var expectedTodoDto = new TodoDto { Id = 1, Title = "TestTodo" };
+
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Todo>())).Returns(Task.CompletedTask);
+            _mapperMock.Setup(mapper => mapper.Map<TodoDto>(It.IsAny<Todo>())).Returns(expectedTodoDto);
+
+            // Act
+            var result = await _controller.CreateTodo(inputTodo);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual((int)HttpStatusCode.OK, okResult.StatusCode);
+            Assert.AreEqual(expectedTodoDto, okResult.Value as TodoDto);
+        }
+
+        [TestMethod]
+        public async Task CreateTodo_ReturnsInternalServerError_WhenExceptionOccurs()
+        {
+            // Arrange
+            var inputTodo = new Todo { Id = 1, Title = "TestTodo" };
+
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Todo>())).ThrowsAsync(new Exception("Dummy exception for test"));
+
+            // Act
+            var result = await _controller.CreateTodo(inputTodo);
+
+            // Assert
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("An error occurred while creating the todo. Please try again later.", objectResult.Value);
+        }
+
+
     }
 }
