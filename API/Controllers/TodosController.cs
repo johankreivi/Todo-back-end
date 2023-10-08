@@ -52,11 +52,20 @@ namespace Api.Controllers
         [HttpPut]
         public async Task<ActionResult> Update(Todo todo)
         {
-            await _repository.UpdateAsync(todo);
-            var todoDto = _mapper.Map<TodoDto>(todo);
+            try
+            {
+                await _repository.UpdateAsync(todo);
+                var todoDto = _mapper.Map<TodoDto>(todo);
 
-            return Ok(todoDto);
+                return Ok(todoDto);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An unexpected error occurred while updating a todo.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while updating the todo. Please try again later.");
+            }
         }
+
 
 
         [HttpGet]
