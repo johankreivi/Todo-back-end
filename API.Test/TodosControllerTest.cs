@@ -153,6 +153,53 @@ namespace Api.Test
             Assert.AreEqual("An error occurred while creating the todo. Please try again later.", objectResult.Value);
         }
 
+        [TestMethod]
+        public async Task UpdateTodo_ShouldReturnUpdatedTodoDto_WhenTodoUpdateIsSuccessful()
+        {
+            // Arrange
+            var sampleTodo = new Todo { Id = 1, Title = "Test Todo", Completed = false };
+            var sampleTodoDto = new TodoDto { Id = 1, Title = "Test Todo", Completed = false };
+
+            _repositoryMock.Setup(repo => repo.UpdateAsync(sampleTodo)).Returns(Task.CompletedTask);
+            _mapperMock.Setup(m => m.Map<TodoDto>(sampleTodo)).Returns(sampleTodoDto);
+
+            var controller = new TodosController(_repositoryMock.Object, _mapperMock.Object);
+
+            // Act
+            var result = await controller.Update(sampleTodo);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+
+            var okResult = result as OkObjectResult;
+            var returnedTodoDto = okResult.Value as TodoDto;
+
+            Assert.AreEqual(sampleTodoDto.Id, returnedTodoDto.Id);
+            Assert.AreEqual(sampleTodoDto.Title, returnedTodoDto.Title);
+        }
+
+        [TestMethod]
+        public async Task UpdateTodo_ShouldReturnInternalServerError_WhenUpdateThrowsException()
+        {
+            // Arrange
+            var sampleTodo = new Todo { Id = 1, Title = "Test Todo", Completed = false };
+
+            _repositoryMock.Setup(repo => repo.UpdateAsync(sampleTodo)).Throws(new Exception("Dummy exception for testing."));
+
+            var controller = new TodosController(_repositoryMock.Object, _mapperMock.Object);
+
+            // Act
+            var result = await controller.Update(sampleTodo);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+
+            var errorResult = result as ObjectResult;
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, errorResult.StatusCode);
+            Assert.AreEqual("An error occurred while updating the todo. Please try again later.", errorResult.Value);
+        }
 
     }
 }
