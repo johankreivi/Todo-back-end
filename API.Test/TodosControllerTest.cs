@@ -201,5 +201,35 @@ namespace Api.Test
             Assert.AreEqual("An error occurred while updating the todo. Please try again later.", errorResult.Value);
         }
 
+        [TestMethod]
+        public async Task Delete_ReturnsOkResult_WhenEntitySuccessfullyDeleted()
+        {
+            // Arrange
+            int testId = 1;
+            _repositoryMock.Setup(repo => repo.DeleteAsync(testId)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _controller.Delete(testId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        public async Task Delete_ReturnsInternalServerError_WhenExceptionOccurs()
+        {
+            // Arrange
+            int testId = 1;
+            _repositoryMock.Setup(repo => repo.DeleteAsync(testId)).ThrowsAsync(new Exception("Some exception"));
+
+            // Act
+            var result = await _controller.Delete(testId);
+
+            // Assert
+            var statusCodeResult = result as ObjectResult;
+            Assert.IsNotNull(statusCodeResult);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, statusCodeResult.StatusCode);
+            Assert.AreEqual("An error occurred while deleting the todo. Please try again later.", statusCodeResult.Value);
+        }
     }
 }
