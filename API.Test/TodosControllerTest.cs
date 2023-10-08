@@ -231,5 +231,48 @@ namespace Api.Test
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, statusCodeResult.StatusCode);
             Assert.AreEqual("An error occurred while deleting the todo. Please try again later.", statusCodeResult.Value);
         }
+
+        [TestMethod]
+        public async Task ChangeDeadline_ReturnsOkResult_WhenDeadlineSuccessfullyUpdated()
+        {
+            // Arrange
+            var changeDeadlineRequest = new ChangeDeadlineRequest
+            {
+                id = 1,
+                deadline = DateTime.Now.AddDays(7) // a week from now
+            };
+
+            _repositoryMock.Setup(repo => repo.UpdateDeadline(changeDeadlineRequest.id, changeDeadlineRequest.deadline))
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _controller.ChangeDeadline(changeDeadlineRequest);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
+        public async Task ChangeDeadline_ReturnsInternalServerError_WhenExceptionOccurs()
+        {
+            // Arrange
+            var changeDeadlineRequest = new ChangeDeadlineRequest
+            {
+                id = 1,
+                deadline = DateTime.Now.AddDays(7)
+            };
+
+            _repositoryMock.Setup(repo => repo.UpdateDeadline(changeDeadlineRequest.id, changeDeadlineRequest.deadline))
+                           .ThrowsAsync(new Exception("Some exception"));
+
+            // Act
+            var result = await _controller.ChangeDeadline(changeDeadlineRequest);
+
+            // Assert
+            var statusCodeResult = result as ObjectResult;
+            Assert.IsNotNull(statusCodeResult);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, statusCodeResult.StatusCode);
+            Assert.AreEqual("An error occurred while updating the deadline. Please try again later.", statusCodeResult.Value);
+        }
     }
 }
