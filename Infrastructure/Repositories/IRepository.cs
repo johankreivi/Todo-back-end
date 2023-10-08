@@ -16,5 +16,6 @@ namespace Infrastructure.Repositories
         Task DeleteAsync(int id);
         Task<int> GetCountAsync();
         Task UpdateAsync(T entity);
+        Task UpdateDeadline(int id, DateTime? deadline);
     }
 }

@@ -47,7 +47,7 @@ namespace Api.Controllers
             var todoDto = _mapper.Map<TodoDto>(todo);
 
             return Ok(todoDto);
-        }   
+        }
 
         // Create a async Get Method to Get All Todos using generic repository pattern and IRepository interface, use automapper profile to map Todo to TodoDto
         [HttpGet]
@@ -73,6 +73,16 @@ namespace Api.Controllers
             return Ok(count);
         }
 
+        [HttpPut("deadline")]
+        public async Task<ActionResult> ChangeDeadline([FromBody] ChangeDeadlineRequest request)
+        {
+            await _repository.UpdateDeadline(request.id, request.deadline);
 
+            return Ok();
+        }
     }
+
+
+
 }
+
