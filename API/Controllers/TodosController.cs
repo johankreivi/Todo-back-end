@@ -44,9 +44,17 @@ namespace Api.Controllers
         [Route("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            await _repository.DeleteAsync(id);
+            try
+            {
+                await _repository.DeleteAsync(id);
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"An unexpected error occurred while deleting a todo with ID: {id}.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while deleting the todo. Please try again later.");
+            }
         }
 
         [HttpPut]
