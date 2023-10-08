@@ -40,14 +40,21 @@ namespace Infrastructure.Repositories
             return await _context.Set<T>().CountAsync();
         }
 
-        public Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Set<T>().FindAsync(id);
         }
 
         public async Task UpdateAsync(T entity)
         {
             _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateDeadline(int id, DateTime? deadline)
+        {
+            var entity = await _context.Set<T>().FindAsync(id);
+            _context.Entry(entity).Property("Deadline").CurrentValue = deadline;
             await _context.SaveChangesAsync();
         }
 
