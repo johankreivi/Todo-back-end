@@ -79,15 +79,23 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(int pageNumber, int pageSize)
         {
-            var todos = await _repository.GetAllAsync(pageNumber, pageSize);
-            var todosDto = _mapper.Map<IEnumerable<TodoDto>>(todos);
-
-            if (todosDto.Count() == 0)
+            try
             {
-                return NoContent();
-            }
+                var todos = await _repository.GetAllAsync(pageNumber, pageSize);
+                var todosDto = _mapper.Map<IEnumerable<TodoDto>>(todos);
 
-            return Ok(todosDto);
+                if (todosDto.Count() == 0)
+                {
+                    return NoContent();
+                }
+
+                return Ok(todosDto);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An unexpected error occurred while fetching todos.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while fetching the todos. Please try again later.");
+            }
         }
 
         [HttpGet("count")]

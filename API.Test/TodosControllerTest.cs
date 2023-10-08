@@ -33,15 +33,30 @@ namespace Api.Test
         }
 
         [TestMethod]
-        public async Task GetTodos_WhenTodosExist_ReturnsOkWithTodos()
+        public async Task GetTodos_ReturnsNoContent_WhenNoTodosExist()
         {
-                        // Arrange
-            var todos = new List<Todo>
-            {
+            // Arrange
+            _repositoryMock.Setup(repo => repo.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
+                           .ReturnsAsync(new List<Todo>());
+
+            // Act
+            var result = await _controller.GetTodos(1, 10);
+
+            // Assert
+            Assert.IsInstanceOfType(result.Result, typeof(NoContentResult));
+        }
+
+        [TestMethod]
+        public async Task GetTodos_ReturnsOkResult_WithTodos_WhenTodosExist()
+        {
+            // Arrange
+            var todos = new List<Todo> {
                 new Todo { Id = 1, Title = "Todo 1"},
                 new Todo { Id = 2, Title = "Todo 2"},
                 new Todo { Id = 3, Title = "Todo 3"}
             };
+            _repositoryMock.Setup(repo => repo.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
+                           .ReturnsAsync(todos);
 
             var todosDto = new List<TodoDto>
             {
@@ -49,38 +64,34 @@ namespace Api.Test
                 new TodoDto { Id = 2, Title = "Todo 2"},
                 new TodoDto { Id = 3, Title = "Todo 3"}
             };
-
-            _repositoryMock.Setup(x => x.GetAllAsync(1, 10)).ReturnsAsync(todos);
-            _mapperMock.Setup(x => x.Map<IEnumerable<TodoDto>>(todos)).Returns(todosDto);
-
-            var controller = new TodosController(_repositoryMock.Object, _mapperMock.Object);
+            _mapperMock.Setup(mapper => mapper.Map<IEnumerable<TodoDto>>(todos))
+                       .Returns(todosDto);
 
             // Act
-            var result = await controller.GetTodos(1, 10);
+            var result = await _controller.GetTodos(1, 10);
 
             // Assert
+            Assert.IsInstanceOfType(result.Result, typeof(OkObjectResult));
             var okResult = result.Result as OkObjectResult;
-            var actualTodos = okResult.Value as IEnumerable<TodoDto>;
-            Assert.IsNotNull(actualTodos);
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual(3, actualTodos.Count());
+            Assert.IsInstanceOfType(okResult.Value, typeof(IEnumerable<TodoDto>));
+            Assert.AreEqual(todosDto.Count, ((IEnumerable<TodoDto>)okResult.Value).Count());
         }
 
         [TestMethod]
-        public async Task GetTodos_WhenNoTodosExist_ReturnsNoContent()
+        public async Task GetTodos_ReturnsInternalServerError_WhenExceptionOccurs()
         {
-            //Arrange
-            var todos = new List<Todo>();
-            _repositoryMock.Setup(x => x.GetAllAsync(1, 10)).ReturnsAsync(todos);
-            var controller = new TodosController(_repositoryMock.Object, _mapperMock.Object);
-            //Act
-            var result = await controller.GetTodos(1, 10);
-            //Assert
-            Assert.IsNotNull(result);
-            var noContentResult = result.Result as NoContentResult;
-            Assert.IsNotNull(noContentResult);
+            // Arrange
+            _repositoryMock.Setup(repo => repo.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
+                           .ThrowsAsync(new Exception("Some exception"));
 
+            // Act
+            var result = await _controller.GetTodos(1, 10);
+
+            // Assert
+            var statusCodeResult = result.Result as ObjectResult;
+            Assert.IsNotNull(statusCodeResult);
+            Assert.AreEqual((int)HttpStatusCode.InternalServerError, statusCodeResult.StatusCode);
+            Assert.AreEqual("An error occurred while fetching the todos. Please try again later.", statusCodeResult.Value);
         }
 
         [TestMethod]
