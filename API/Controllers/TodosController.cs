@@ -3,6 +3,9 @@ using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Api.Dto;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Serilog;
+using System.Net;
 
 namespace Api.Controllers
 {
@@ -11,7 +14,6 @@ namespace Api.Controllers
     public class TodosController : ControllerBase
     {
 
-        // Create, interface refrence, constructor and a async Post Method to Create Todo using generic repository pattern and IRepository interface
         private readonly IRepository<Todo> _repository;
         private readonly IMapper _mapper;
 
@@ -21,7 +23,6 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        // Create a async Post Method to Create Todo using generic repository pattern and IRepository interface, use automapper profile to map TodoDto to Todo
         [HttpPost]
         public async Task<ActionResult> CreateTodo(Todo todo)
         {
@@ -49,7 +50,7 @@ namespace Api.Controllers
             return Ok(todoDto);
         }
 
-        // Create a async Get Method to Get All Todos using generic repository pattern and IRepository interface, use automapper profile to map Todo to TodoDto
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos(int pageNumber, int pageSize)
         {
@@ -68,9 +69,17 @@ namespace Api.Controllers
         [HttpGet("count")]
         public async Task<ActionResult> GetTodoCount()
         {
-            var count = await _repository.GetCountAsync();
 
-            return Ok(count);
+            try
+            {
+                var count = await _repository.GetCountAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An unexpected error occurred while fetching the todo count.");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "An error occurred while fetching the todo count. Please try again later.");
+            }
         }
 
         [HttpPut("deadline")]
